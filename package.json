@@ -1,0 +1,42 @@
+{
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "bin": {
+    "sf-ts-sdk-gen": "bin/cli.js"
+  },
+  "scripts": {
+    "start": "tsdx watch --onSuccess 'npm test'",
+    "build": "tsdx build",
+    "test": "./bin/cli.js ./test/definition.json ./test/sdk",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "name": "@soluzioni-futura/sf-ts-sdk-gen",
+  "author": "Giovanni Bruno",
+  "module": "dist/sf-ts-sdk-gen.esm.js",
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^8.2.4",
+    "@types/fs-extra": "^11.0.1",
+    "husky": "^8.0.3",
+    "openapi-types": "^12.1.0",
+    "size-limit": "^8.2.4",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.5.0",
+    "typescript": "^3.9.10"
+  },
+  "dependencies": {
+    "@soluzioni-futura/openapi2ts": "1.3.0",
+    "fs-extra": "^11.1.0"
+  }
+}
