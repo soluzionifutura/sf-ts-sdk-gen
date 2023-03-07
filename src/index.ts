@@ -14,12 +14,16 @@ export async function generateSdk({
   openapi,
   outputFolder,
   sdkName,
-  sdkVersion = "0.0.1",
+  sdkVersion,
 }: Options): Promise<void> {
   if (typeof openapi === "string") {
     openapi = JSON.parse(readFileSync(openapi, "utf8")) as OpenAPIV3_1.Document
   }
 
+  if (typeof sdkVersion !== "string") {
+    sdkVersion = "0.1.0"
+  }
+  
   const openapiV3_1 = openapi as OpenAPIV3_1.Document
   const SDK_NAME = sdkName || `${openapiV3_1.info.title}-sdk`
 
@@ -74,6 +78,8 @@ export async function generateSdk({
  */`,
     `import type { AxiosStatic, AxiosResponse, AxiosRequestConfig } from "axios"`,
     `import deepmerge from "deepmerge"`,
+    "export const SDK_VERSION = \"" + sdkVersion + "\"",
+    "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
     "export let axios: AxiosStatic | undefined = undefined",
     "export let env: string | undefined = undefined",
     `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
