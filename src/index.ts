@@ -6,20 +6,22 @@ import { OpenAPIV3_1 } from "openapi-types"
 export type Options = { 
   openapi: OpenAPIV3_1.Document | string
   outputFolder: string
+  sdkName?: string,
   sdkVersion?: string
 }
 
 export async function generateSdk({
   openapi,
   outputFolder,
-  sdkVersion = "0.0.1"
+  sdkName,
+  sdkVersion = "0.0.1",
 }: Options): Promise<void> {
   if (typeof openapi === "string") {
     openapi = JSON.parse(readFileSync(openapi, "utf8")) as OpenAPIV3_1.Document
   }
 
   const openapiV3_1 = openapi as OpenAPIV3_1.Document
-  const SDK_NAME = openapiV3_1.info.title
+  const SDK_NAME = sdkName || `${openapiV3_1.info.title}-sdk`
 
   const _getFunctionCode = (params: {
     name: string, 
@@ -288,7 +290,7 @@ export async function generateSdk({
     "scripts": {
       "build": "tsdx build && npm run build:package",
       "lint": "tsdx lint",
-      "prepare": "tsdx build",
+      "prepare": "tsdx build && npm run build:package",
       "size": "size-limit",
       "analyze": "size-limit --why",
       "build:package": `echo '${JSON.stringify(buildPackageJson)}' > dist/package.json`,
