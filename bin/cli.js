@@ -3,7 +3,7 @@ const { generateSdk } = require("../dist")
 const argv = require('yargs-parser')(process.argv.slice(2))
 const { name, version } = require("../package.json")
 
-if (args.includes("--help") || args.includes("-h")) {
+if (argv.h || argv.help) {
   console.log(`${name} v${version}`)
   console.log(usage)
   process.exit(0)
