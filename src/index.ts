@@ -1,6 +1,7 @@
 import { readFileSync, ensureDirSync, writeFileSync } from "fs-extra"
 import { parse } from "@soluzioni-futura/openapi2ts"
 import { join } from "path"
+import semver from "semver"
 import { OpenAPIV3_1 } from "openapi-types"
 
 export type Options = { 
@@ -20,34 +21,15 @@ export async function generateSdk({
     openapi = JSON.parse(readFileSync(openapi, "utf8")) as OpenAPIV3_1.Document
   }
 
-  if (typeof sdkVersion !== "string") {
+
+  if (!sdkVersion || typeof sdkVersion !== "string") {
     sdkVersion = "0.1.0"
+  } else if (!semver.valid(sdkVersion)) {
+    throw new Error(`Invalid sdkVersion: ${sdkVersion}`)
   }
-  
+
   const openapiV3_1 = openapi as OpenAPIV3_1.Document
   const SDK_NAME = sdkName || `${openapiV3_1.info.title}-sdk`
-
-  const _getFunctionCode = (params: {
-    name: string, 
-    path: string,
-    description?: string
-    requestType?: string
-    responseType: string
-    responseTypeName: string
-  }): string => [
-  params.description ? `/**\n${params.description}\n*/` : "",
-  `export type ${params.responseTypeName} = ${params.responseType}`,
-  `export async function ${params.name}(${params.requestType ? `data: ${params.requestType}, ` : ""}config?: AxiosRequestConfig): Promise<${params.responseTypeName}> {
-  _checkSetup()
-  const defaultConfig: AxiosRequestConfig = {
-    headers: Object.assign(
-      _getAuthHeader(),
-      { "content-type": "application/json" }
-    )
-  }
-  const res: ${params.responseTypeName} = await axios!.post(_getFnUrl("${params.name}"), ${params.requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)
-  return res
-}`].filter(e => e).join("\n")
 
   ensureDirSync(join(outputFolder, "src"))
   
@@ -81,8 +63,31 @@ export async function generateSdk({
     "export const SDK_VERSION = \"" + sdkVersion + "\"",
     "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
     "export let axios: AxiosStatic | undefined = undefined",
+    "export let ES: typeof EventSource | undefined = undefined",
     "export let env: string | undefined = undefined",
     `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
+    `export interface CustomEventSource<T> extends EventSource {
+  onmessage: (event: MessageEvent<T>) => void
+}`,
+    `type IfEquals<X, Y, A, B> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : B`,
+    `type WritableKeysOf<T> = { [P in keyof T]: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, never> }[keyof T]`,
+
+    `const _proxy = {
+  set(target: EventSource, prop: WritableKeysOf<EventSource>, value: any): boolean {
+    if (prop === "onmessage") {
+      target[prop] = (event: MessageEvent) => {
+        try {
+          value({ ...event, data: JSON.parse(event.data) })
+        } catch (_) {
+          value(event)
+        }
+      }
+    } else {
+      target[prop] = value
+    }
+    return true
+  }
+}`,
     `export function setAuth(securitySchemaName: keyof typeof _auth, value: string | null): void {
   if (typeof _auth[securitySchemaName] === "undefined") {
     throw new Error(\`Invalid security schema name: \${securitySchemaName}\`)
@@ -115,7 +120,12 @@ export async function generateSdk({
 
   return new URL(endpoint, baseUrl).href
 }`,
-    `export function setup(params: { axios: AxiosStatic, env: string, customServerUrls?: { [env: string]: string } }) {
+    `export function setup(params: { 
+  axios: AxiosStatic, 
+  env: string, 
+  ES: typeof EventSource,
+  customServerUrls?: { [env: string]: string }
+}) {
   axios = params.axios
   env = params.env
   if (params.customServerUrls) {
@@ -132,138 +142,171 @@ export async function generateSdk({
   if (!env) {
     throw new Error("env is not defined. Please set env to the sdk.")
   }
+  if (!ES) {
+    throw new Error("EventSource is not defined. Please set ES to the sdk.")
+  }
 }`,
     (await Promise.all(Object.entries(openapi.paths!).map(([path, pathItem]) => {
-      // console.log(path, pathItem)
       if (!pathItem) {
         return
       }
 
-      if (pathItem.post) {
-        // TODO handle function paths
+      if (
+        (pathItem.post && pathItem.post.operationId && !pathItem.get) ||
+        (pathItem.get && pathItem.get.operationId && !pathItem.post)
+      ) {
+        
+        const method = pathItem.post ? "POST" : "GET"
+
         const {
           parameters,
           description,
           operationId,
-          security,
           requestBody,
           responses,
-        } = pathItem.post
+        } = typeof pathItem.post === "object" ? pathItem.post! : pathItem.get!
 
         let requestType
-        
+        let isSSE = false
+
         if (requestBody) {
           const ref = (requestBody as OpenAPIV3_1.ReferenceObject).$ref
           if (!ref) {
-            throw new Error(`requestBody.$ref is missing in POST ${path}; requestBody must be a $ref to a schema`)
+            throw new Error(`requestBody.$ref is missing in ${method} ${path}; requestBody must be a $ref to a schema`)
           }
           
           const requestBodyRef = ref.split("/").pop()!
           if (!requestBodyRef) {
-            throw new Error(`requestBody.$ref is invalid in POST ${path}; requestBody must be a $ref to a schema`)
+            throw new Error(`requestBody.$ref is invalid in ${method} ${path}; requestBody must be a $ref to a schema`)
           }
           
           const requestBodyDetails = openapiV3_1.components?.requestBodies?.[requestBodyRef] as OpenAPIV3_1.RequestBodyObject | undefined
           if (!requestBodyDetails) {
-            throw new Error(`requestBody.$ref is invalid in POST ${path}; ${requestBodyRef} is not defined in components.requestBodies`)
+            throw new Error(`requestBody.$ref is invalid in ${method} ${path}; ${requestBodyRef} is not defined in components.requestBodies`)
           }
 
           const requestBodySchema = requestBodyDetails.content["application/json"]?.schema as OpenAPIV3_1.ReferenceObject | undefined
           if (!requestBodySchema) {
-            throw new Error(`requestBody.$ref is invalid in POST ${path}; ${requestBodyRef} does not have an application/json schema`)
+            throw new Error(`requestBody.$ref is invalid in ${method} ${path}; ${requestBodyRef} does not have an application/json schema`)
           }
 
           if (!requestBodySchema.$ref) {
-            throw new Error(`requestBody.$ref is invalid in POST ${path}; ${requestBodyRef} application/json schema must be a $ref to a schema`)
+            throw new Error(`requestBody.$ref is invalid in ${method} ${path}; ${requestBodyRef} application/json schema must be a $ref to a schema`)
           }
 
           const requestBodySchemaRef = requestBodySchema.$ref.split("/").pop()!
           if (!requestBodySchemaRef) {
-            throw new Error(`requestBody.$ref is invalid in POST ${path}; ${requestBodySchema.$ref} must be a valid $ref to a schema`)
+            throw new Error(`requestBody.$ref is invalid in ${method} ${path}; ${requestBodySchema.$ref} must be a valid $ref to a schema`)
           }
 
           if (!typesSet.has(requestBodySchemaRef)) {
-            throw new Error(`requestBody.$ref is invalid in POST ${path}; ${requestBodySchemaRef} has not been generated by openapi2ts`)
+            throw new Error(`requestBody.$ref is invalid in ${method} ${path}; ${requestBodySchemaRef} has not been generated by openapi2ts`)
           }
           
           requestType = requestBodySchemaRef
         }
         
         if (!responses) {
-          throw new Error(`responses is missing in POST ${path}`)
+          throw new Error(`responses is missing in ${method} ${path}`)
         }
 
         const responseType = Object.entries(responses).map(([statusCode, response]) => {
           const ref = (response as OpenAPIV3_1.ReferenceObject).$ref
           if (!ref) {
-            throw new Error(`response.$ref is missing in POST ${path} ${statusCode}; response must be a $ref to a schema`)
+            throw new Error(`response.$ref is missing in ${method} ${path} ${statusCode}; response must be a $ref to a schema`)
           }
           
           const responseRef = ref.split("/").pop()!
           if (!responseRef) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; response must be a $ref to a schema`)
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; response must be a $ref to a schema`)
           }
           
           const responseDetails = openapiV3_1.components?.responses?.[responseRef] as OpenAPIV3_1.ResponseObject | undefined
           if (!responseDetails) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; ${responseRef} is not defined in components.responses`)
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseRef} is not defined in components.responses`)
           }
 
-          if (!responseDetails.content?.["application/json"]) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; ${responseRef} does not have an application/json content`)
+          const allowedContentTypes = ["application/json", "text/event-stream"]
+          let content
+          for(let i = 0; i < allowedContentTypes.length; i++) {
+            const contentType = allowedContentTypes[i]
+            if (responseDetails.content?.[contentType]) {
+              content = responseDetails.content[contentType]
+              break
+            }
+          }
+          if (!content) {
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseRef} does not have an allowed content type (${allowedContentTypes.join(", ")})`)
           }
 
-          const responseSchema = responseDetails.content?.["application/json"]?.schema as OpenAPIV3_1.ReferenceObject | undefined
+          if (responseDetails.content?.["text/event-stream"]) {
+            if (method !== "GET") {
+              throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseRef} cannot have a content type of text/event-stream; method must be GET`)
+            } else {
+              isSSE = true
+            }
+          }
+          
+          const responseSchema = (content.schema) as OpenAPIV3_1.ReferenceObject | undefined
           if (!responseSchema) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; ${responseRef} does not have an application/json schema`)
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseRef} does not have an allowed content type (${allowedContentTypes.join(", ")})`)
           }
 
           if (!responseSchema.$ref) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; ${responseRef} application/json schema must be a $ref to a schema`)
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseRef} application/json schema must be a $ref to a schema`)
           }
 
           const responseSchemaRef = responseSchema.$ref.split("/").pop()!
           if (!responseSchemaRef) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; ${responseSchema.$ref} must be a valid $ref to a schema`)
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseSchema.$ref} must be a valid $ref to a schema`)
           }
 
           if (!typesSet.has(responseSchemaRef)) {
-            throw new Error(`response.$ref is invalid in POST ${path} ${statusCode}; ${responseSchemaRef} has not been generated by openapi2ts`)
+            throw new Error(`response.$ref is invalid in ${method} ${path} ${statusCode}; ${responseSchemaRef} has not been generated by openapi2ts`)
           }
       
-          const type = `(AxiosResponse<${responseSchemaRef}> & {
+          if (isSSE) {
+            return `CustomEventSource<${responseSchemaRef}>` 
+          } else {
+            return `(AxiosResponse<${responseSchemaRef}> & {
   ok: ${statusCode.startsWith("2") ? "true" : "false"}
   status: ${statusCode}
-})`
-          return type
+})`       
+          }
         }).join(" | ")
 
-        return _getFunctionCode({
-          name: operationId!,
-          description,
-          path,
-          requestType, 
-          responseType,
-          responseTypeName: `Axios${operationId!.replace(/([A-Z])/g, " $1").split(" ").map(e => e[0].toUpperCase() + e.slice(1)).join("")}Response`,
-        })
-      } else if (pathItem.get) {
-        // TODO handle sse paths
-        return ""
+        
+        if (isSSE) {
+          const responseTypeName = `${operationId!.replace(/([A-Z])/g, " $1").split(" ").map(e => e[0].toUpperCase() + e.slice(1)).join("")}EventSource`
+          return [
+            description ? `/**\n${description}\n*/` : "",
+            `export type ${responseTypeName} = ${responseType}`,
+            `export function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}): ${responseTypeName} {
+  _checkSetup()
+  return new Proxy(new ES!(_getFnUrl("${operationId}")), _proxy) as ${responseTypeName}
+}`           
+          ].filter(e => e).join("\n")
+        } else {
+          const responseTypeName = `Axios${operationId!.replace(/([A-Z])/g, " $1").split(" ").map(e => e[0].toUpperCase() + e.slice(1)).join("")}Response`
+          return [
+            description ? `/**\n${description}\n*/` : "",
+            `export type ${responseTypeName} = ${responseType}`,
+            `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}config?: AxiosRequestConfig): Promise<${responseTypeName}> {
+  _checkSetup()
+  const defaultConfig: AxiosRequestConfig = { headers: _getAuthHeader() }
+  ${method === "POST" ? 
+    `const res: ${responseTypeName} = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), ${requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)`
+    : `const res: ${responseTypeName} = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), config ? deepmerge(defaultConfig, config) : defaultConfig)`
+  }
+  return res
+}`
+          ].filter(e => e).join("\n")
+        }
       }
-
       return ""
     }))).filter(e => e).join("\n\n"),
     typesCode
   ].join("\n\n")
-
-  // const exports = new Set<string>()
-
-  // const data = bannerComment + (await Promise.all(Object.entries(openapi.components!.schemas!).map(([name, schema]) => {
-  //   if (exports.has(name)) {
-  //     throw new Error(`Duplicate schema name: ${name}`)
-  //   }
-
-  // }))).join("\n")
 
   writeFileSync(join(outputFolder, "src", "index.ts"), sdk)
 
@@ -274,6 +317,7 @@ export async function generateSdk({
   const author = "sf-ts-sdk-gen"
   
   const buildPackageJson = {
+    "name": SDK_NAME,
     "version": sdkVersion,
     "license": pkgLicense,
     "main": "./index.js",
@@ -301,7 +345,6 @@ export async function generateSdk({
       "analyze": "size-limit --why",
       "build:package": `echo '${JSON.stringify(buildPackageJson)}' > dist/package.json`,
     },
-    "name": SDK_NAME,
     author,
     "module": `dist/${SDK_NAME}.esm.js`,
     "sideEffects": false,
@@ -314,7 +357,8 @@ export async function generateSdk({
       "tsdx": "^0.14.1",
       "tslib": "^2.5.0",
       "typescript": "^3.9.10",
-      "axios": "^1.3.4"
+      "axios": "^1.3.4",
+      "@types/eventsource": "^1.1.11"
     },
     "dependencies": {
       "deepmerge": "4.3.0"
