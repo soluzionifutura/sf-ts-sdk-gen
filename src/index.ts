@@ -328,6 +328,7 @@ export async function generateSdk({
     "sideEffects": false,
   }
   const packageJson = {
+    "name": SDK_NAME,
     "version": sdkVersion,
     "license": pkgLicense,
     "main": "dist/index.js",
