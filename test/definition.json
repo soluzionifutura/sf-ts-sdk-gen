@@ -63,7 +63,11 @@
         "operationId": "getImageUploadPresignedUrl",
         "security": [
           {
-            "roles": [
+            "apiKey": [
+              "AUTHENTICATED"
+            ]
+          }, {
+            "apiKeyQuery": [
               "AUTHENTICATED"
             ]
           }
@@ -121,7 +125,7 @@
         "operationId": "refreshToken",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AUTHENTICATED"
             ]
           }
@@ -219,7 +223,7 @@
         "operationId": "updateUserPassword",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -300,7 +304,7 @@
         "operationId": "sendMFAEmail",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -461,7 +465,7 @@
         "operationId": "createOrganization",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -490,7 +494,7 @@
         "operationId": "getOrganization",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT || ORGANIZATION_OPERATOR"
             ]
           }
@@ -522,7 +526,7 @@
         "operationId": "listOrganizations",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -551,7 +555,7 @@
         "operationId": "updateOrganization",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT || ORGANIZATION_ADMIN"
             ]
           }
@@ -580,7 +584,7 @@
         "operationId": "convertOrganizationToFranchise",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -612,7 +616,7 @@
         "operationId": "updateOrganizationAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -638,7 +642,7 @@
         "operationId": "listOrganizationAgencies",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT || ORGANIZATION_ADMIN"
             ]
           }
@@ -687,7 +691,7 @@
         "operationId": "updateAgent",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -719,7 +723,7 @@
         "operationId": "updateAgentAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -777,7 +781,7 @@
         "operationId": "getAgent",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -809,7 +813,7 @@
         "operationId": "listAgents",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -890,7 +894,7 @@
         "operationId": "listAgencyAgents",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT || AGENCY_ADMIN"
             ]
           }
@@ -916,7 +920,7 @@
         "operationId": "createAgentAsAgencyAdmin",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN"
             ]
           }
@@ -968,7 +972,7 @@
         "operationId": "updateBidder",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -1000,7 +1004,7 @@
         "operationId": "updateBidderAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1058,7 +1062,7 @@
         "operationId": "getBidder",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1090,7 +1094,7 @@
         "operationId": "listBidders",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1119,7 +1123,7 @@
         "operationId": "deleteBidder",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -1171,7 +1175,7 @@
         "operationId": "updateOrganizationUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -1203,7 +1207,7 @@
         "operationId": "updateOrganizationUserAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1261,7 +1265,7 @@
         "operationId": "getOrganizationUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1293,7 +1297,7 @@
         "operationId": "listOrganizationUsers",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1348,7 +1352,7 @@
         "operationId": "createPromoter",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1377,7 +1381,7 @@
         "operationId": "updatePromoter",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -1409,7 +1413,7 @@
         "operationId": "updatePromoterAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1467,7 +1471,7 @@
         "operationId": "getPromoter",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1499,7 +1503,7 @@
         "operationId": "listPromoters",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1577,7 +1581,7 @@
         "operationId": "updateStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1635,7 +1639,7 @@
         "operationId": "getStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1667,7 +1671,7 @@
         "operationId": "listStaffUsers",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1722,7 +1726,7 @@
         "operationId": "createAgency",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENT_ACCOUNT"
             ]
           }
@@ -1774,7 +1778,7 @@
         "operationId": "listAgencies",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1803,7 +1807,7 @@
         "operationId": "listPromoterAgencies",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "(PROMOTER_ACCOUNT && SELF) || STAFF_USER_ACCOUNT"
             ]
           }
@@ -1832,7 +1836,7 @@
         "operationId": "updateAgency",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN"
             ]
           }
@@ -1861,7 +1865,7 @@
         "operationId": "updateAgencyAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1890,7 +1894,7 @@
         "operationId": "linkAgentToAgencyAsStaffUser",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1919,7 +1923,7 @@
         "operationId": "linkAgencyToOrganization",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -1951,7 +1955,7 @@
         "operationId": "removeAgencyFromOrganization",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT || AGENCY_ADMIN || ORGANIZATION_ADMIN"
             ]
           }
@@ -1980,7 +1984,7 @@
         "operationId": "updateAgentRole",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2009,7 +2013,7 @@
         "operationId": "linkAgentToAgencyAsAgencyAdmin",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN"
             ]
           }
@@ -2041,7 +2045,7 @@
         "operationId": "acceptOrganizationInvitation",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN"
             ]
           }
@@ -2084,7 +2088,7 @@
         "operationId": "lockAuctions",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_OPERATOR && SELF"
             ]
           }
@@ -2107,7 +2111,7 @@
         "operationId": "getAuctionsLocker",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_OPERATOR"
             ]
           }
@@ -2136,7 +2140,7 @@
         "operationId": "createOrganizationInvitation",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "ORGANIZATION_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2165,7 +2169,7 @@
         "operationId": "getOrganizationInvitation",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "ORGANIZATION_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2197,7 +2201,7 @@
         "operationId": "listOrganizationInvitations",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT || ORGANIZATION_ADMIN"
             ]
           }
@@ -2223,7 +2227,7 @@
         "operationId": "updateOrganizationInvitation",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "ORGANIZATION_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2252,7 +2256,7 @@
         "operationId": "inviteUserToCreateAgency",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "PROMOTER_ACCOUNT"
             ]
           }
@@ -2278,7 +2282,7 @@
         "operationId": "createHeadquarter",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2307,7 +2311,7 @@
         "operationId": "deleteHeadquarter",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2339,7 +2343,7 @@
         "operationId": "listAgencyHeadquarters",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2388,7 +2392,7 @@
         "operationId": "updateHeadquarter",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2437,7 +2441,7 @@
         "operationId": "createSubscribablePlan",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2463,7 +2467,7 @@
         "operationId": "deleteSubscribablePlan",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2492,7 +2496,7 @@
         "operationId": "getSubscribablePlanAsStaff",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2521,7 +2525,7 @@
         "operationId": "listAgencySubscribablePlans",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2547,7 +2551,7 @@
         "operationId": "listOrganizationSubscribablePlans",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "ORGANIZATION_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2573,7 +2577,7 @@
         "operationId": "listSubscribablePlans",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2599,7 +2603,7 @@
         "operationId": "updateSubscribablePlan",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2628,7 +2632,7 @@
         "operationId": "updateSubscribablePlanStatus",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2654,7 +2658,7 @@
         "operationId": "listAuctionWatchingUsers",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2680,7 +2684,7 @@
         "operationId": "getUserWatchlist",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "(SELF && BIDDER_ACCOUNT) || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2706,7 +2710,7 @@
         "operationId": "removeAuctionFromUserWatchlist",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF && (AGENT_ACCOUNT || BIDDER_ACCOUNT)"
             ]
           }
@@ -2732,7 +2736,7 @@
         "operationId": "addAuctionToUserWatchlist",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF && (BIDDER_ACCOUNT || AGENT_ACCOUNT)"
             ]
           }
@@ -2764,7 +2768,7 @@
         "operationId": "listAuctions",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "STAFF_USER_ACCOUNT"
             ]
           }
@@ -2796,7 +2800,7 @@
         "operationId": "listAgencyAuctions",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2828,7 +2832,7 @@
         "operationId": "getFullAuctionData",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2886,7 +2890,7 @@
         "operationId": "createAuction",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2918,7 +2922,7 @@
         "operationId": "updateAuction",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "AGENCY_ADMIN || STAFF_USER_ACCOUNT"
             ]
           }
@@ -2959,7 +2963,7 @@
         "operationId": "getUserSSE",
         "security": [
           {
-            "roles": [
+            "apiKey": [
               "SELF"
             ]
           }
@@ -3027,6 +3031,11 @@
         "type": "apiKey",
         "in": "header",
         "name": "Authorization"
+      },
+      "apiKeyQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "api_key"
       },
       "bearer": {
         "type": "http",
@@ -20141,7 +20150,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20174,7 +20183,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20207,7 +20216,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20240,7 +20249,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20273,7 +20282,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20306,7 +20315,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20339,7 +20348,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20372,7 +20381,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20405,7 +20414,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20438,7 +20447,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20471,7 +20480,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20504,7 +20513,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20537,7 +20546,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20570,7 +20579,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20603,7 +20612,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20636,7 +20645,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20669,7 +20678,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20702,7 +20711,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20735,7 +20744,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20768,7 +20777,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20801,7 +20810,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20834,7 +20843,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20867,7 +20876,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20900,7 +20909,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20933,7 +20942,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20966,7 +20975,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -20999,7 +21008,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21032,7 +21041,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21065,7 +21074,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21098,7 +21107,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21131,7 +21140,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21164,7 +21173,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21197,7 +21206,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21230,7 +21239,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21263,7 +21272,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21296,7 +21305,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21329,7 +21338,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21362,7 +21371,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21395,7 +21404,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21428,7 +21437,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21461,7 +21470,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21494,7 +21503,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21527,7 +21536,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21560,7 +21569,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21593,7 +21602,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21626,7 +21635,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21659,7 +21668,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21692,7 +21701,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21725,7 +21734,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21758,7 +21767,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21791,7 +21800,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21824,7 +21833,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21857,7 +21866,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21890,7 +21899,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21923,7 +21932,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21956,7 +21965,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -21989,7 +21998,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22022,7 +22031,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22055,7 +22064,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22088,7 +22097,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22121,7 +22130,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22154,7 +22163,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22187,7 +22196,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22220,7 +22229,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22253,7 +22262,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22286,7 +22295,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22319,7 +22328,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22352,7 +22361,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22385,7 +22394,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22418,7 +22427,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22451,7 +22460,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22484,7 +22493,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22517,7 +22526,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22550,7 +22559,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22583,7 +22592,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22616,7 +22625,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22649,7 +22658,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22682,7 +22691,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22715,7 +22724,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22748,7 +22757,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22781,7 +22790,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22814,7 +22823,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22847,7 +22856,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22880,7 +22889,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22913,7 +22922,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22946,7 +22955,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -22979,7 +22988,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23012,7 +23021,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23045,7 +23054,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23078,7 +23087,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23111,7 +23120,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23144,7 +23153,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23177,7 +23186,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23210,7 +23219,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23243,7 +23252,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23276,7 +23285,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23309,7 +23318,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23342,7 +23351,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23375,7 +23384,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23408,7 +23417,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23441,7 +23450,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23474,7 +23483,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23507,7 +23516,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23540,7 +23549,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23573,7 +23582,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23606,7 +23615,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23639,7 +23648,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23672,7 +23681,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23705,7 +23714,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23738,7 +23747,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23771,7 +23780,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23804,7 +23813,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23837,7 +23846,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23870,7 +23879,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23903,7 +23912,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23936,7 +23945,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -23969,7 +23978,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24002,7 +24011,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24035,7 +24044,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24068,7 +24077,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24101,7 +24110,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24134,7 +24143,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24167,7 +24176,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24200,7 +24209,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24233,7 +24242,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24266,7 +24275,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24299,7 +24308,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24332,7 +24341,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24365,7 +24374,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24398,7 +24407,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24431,7 +24440,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24464,7 +24473,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24497,7 +24506,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24530,7 +24539,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24563,7 +24572,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24596,7 +24605,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24629,7 +24638,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24662,7 +24671,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24695,7 +24704,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24728,7 +24737,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24761,7 +24770,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24794,7 +24803,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24827,7 +24836,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24860,7 +24869,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24893,7 +24902,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24926,7 +24935,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24959,7 +24968,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -24992,7 +25001,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25025,7 +25034,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25058,7 +25067,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25091,7 +25100,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25124,7 +25133,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25157,7 +25166,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25190,7 +25199,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25223,7 +25232,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25256,7 +25265,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25289,7 +25298,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25322,7 +25331,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25355,7 +25364,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25388,7 +25397,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25421,7 +25430,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25454,7 +25463,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25487,7 +25496,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25520,7 +25529,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25553,7 +25562,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25586,7 +25595,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25619,7 +25628,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25652,7 +25661,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25685,7 +25694,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25718,7 +25727,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25751,7 +25760,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25784,7 +25793,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25817,7 +25826,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25850,7 +25859,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25883,7 +25892,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25916,7 +25925,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25949,7 +25958,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -25982,7 +25991,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26015,7 +26024,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26048,7 +26057,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26081,7 +26090,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26114,7 +26123,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26147,7 +26156,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26180,7 +26189,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26213,7 +26222,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26346,7 +26355,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26549,7 +26558,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26582,7 +26591,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26615,7 +26624,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26648,7 +26657,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26681,7 +26690,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26714,7 +26723,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26747,7 +26756,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26780,7 +26789,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26813,7 +26822,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26846,7 +26855,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26879,7 +26888,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26912,7 +26921,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26945,7 +26954,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -26978,7 +26987,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -27011,7 +27020,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -27044,7 +27053,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -27077,7 +27086,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -27110,7 +27119,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -27143,7 +27152,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {
@@ -27176,7 +27185,7 @@
           }
         },
         "headers": {
-          "x-user-roles": {
+          "x-user-apiKey": {
             "schema": {
               "type": "array",
               "items": {

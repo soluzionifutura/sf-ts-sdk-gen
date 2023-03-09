@@ -94,22 +94,30 @@ export async function generateSdk({
   }
   _auth[securitySchemaName] = value
 }`,
-    `function _getAuthHeader(): { [key: string]: string } {
+    `function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, params: URLSearchParams } {
   const headers: { [key: string]: string } = {}
+  const params = new URLSearchParams()
   ${Object.entries(securitySchemas).map(([key, value]) => {
     value = value as OpenAPIV3_1.SecuritySchemeObject
     if (value.type === "http") {
       if (value.scheme === "bearer") {
-        return `if (_auth["${key}"]) headers.Authorization = \`Bearer \${_auth["${key}"]}\``
+        return `if (keys.has("${key}") && _auth["${key}"]) headers.Authorization = \`Bearer \${_auth["${key}"]}\``
       } else {
-        return `if (_auth["${key}"]) headers.Authorization = \`Basic \${_auth["${key}"]}\``
+        return `if (keys.has("${key}") && _auth["${key}"]) headers.Authorization = \`Basic \${_auth["${key}"]}\``
       }
-    } else if (value.type === "apiKey" && value.in === "header") {
-      return `if (_auth["${key}"]) headers["${value.name}"] = _auth["${key}"]`
+    } else if (value.type === "apiKey") {
+      if (value.in === "header") {
+        return `if (keys.has("${key}") && _auth["${key}"]) headers["${value.name}"] = _auth["${key}"]`
+      } else if (value.in === "query") {
+        return `if (keys.has("${key}") && _auth["${key}"]) params.set("${value.name}", _auth["${key}"])`
+      } else {
+        return ""
+      }
+    } else {
+      return ""
     }
-    return ""
   }).filter(e => e).join("\n  ")}
-  return headers
+  return { headers, params }
 }`,
     `export const serverUrls: { [env: string]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
     `function _getFnUrl(endpoint: string): string {
@@ -164,6 +172,7 @@ export async function generateSdk({
           operationId,
           requestBody,
           responses,
+          security
         } = typeof pathItem.post === "object" ? pathItem.post! : pathItem.get!
 
         let requestType
@@ -275,6 +284,7 @@ export async function generateSdk({
           }
         }).join(" | ")
 
+        const securityKeys = Array.from(new Set((security?.map(e => Object.keys(e)) || [])))
         
         if (isSSE) {
           const responseTypeName = `${operationId!.replace(/([A-Z])/g, " $1").split(" ").map(e => e[0].toUpperCase() + e.slice(1)).join("")}EventSource`
@@ -293,7 +303,7 @@ export async function generateSdk({
             `export type ${responseTypeName} = ${responseType}`,
             `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}config?: AxiosRequestConfig): Promise<${responseTypeName}> {
   _checkSetup()
-  const defaultConfig: AxiosRequestConfig = { headers: _getAuthHeader() }
+  const defaultConfig: AxiosRequestConfig = ${security ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
   ${method === "POST" ? 
     `const res: ${responseTypeName} = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), ${requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)`
     : `const res: ${responseTypeName} = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), config ? deepmerge(defaultConfig, config) : defaultConfig)`
