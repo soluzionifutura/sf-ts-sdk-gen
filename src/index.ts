@@ -310,7 +310,7 @@ ${method === "POST" ?
     throw new Error(\`Invalid env: \${env}\`)
   }
 
-  return new URL(endpoint, baseUrl).href
+  return baseUrl.replace(/\\/$/, \"\") + "/" + endpoint.replace(/^\\//, \"\")
 }`,
     `export function setup(params: { 
   axios: AxiosStatic
