@@ -194,11 +194,10 @@ export async function generateSdk({
           return `CustomEventSource<${responseSchemaRef}>` 
         } else {
           return `(AxiosResponse<${responseSchemaRef}> & {
-  ok: ${statusCode.startsWith("2") ? "true" : "false"}
   status: ${statusCode}
 })`       
         }
-      }).join(" | ")
+      }).join(" | ") + " | AxiosResponse"
 
       const securityKeys = Array.from(new Set((security?.map(e => Object.keys(e)) || [])))
 
@@ -220,11 +219,19 @@ export async function generateSdk({
           `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}config?: AxiosRequestConfig): Promise<${responseTypeName}> {
   _checkSetup()
   const defaultConfig: AxiosRequestConfig = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  try {
 ${method === "POST" ? 
-  `  const res: ${responseTypeName} = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), ${requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)`
-  : `  const res: ${responseTypeName} = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), config ? deepmerge(defaultConfig, config) : defaultConfig)`
+  `    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), ${requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)`
+  : `    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), config ? deepmerge(defaultConfig, config) : defaultConfig)`
 }
-  return res
+    return res
+  } catch (e) {
+    const { response } = e as AxiosError
+    if (response) {
+      return response
+    }
+    throw e
+  }
 }`
         ].filter(e => e).join("\n")
       }
@@ -241,7 +248,7 @@ ${method === "POST" ?
  * DO NOT MODIFY IT BY HAND. Instead, modify the source
  * openapi definition and regenerate this file.
  */`,
-    `import type { AxiosStatic, AxiosResponse, AxiosRequestConfig } from "axios"`,
+    `import type { AxiosStatic, AxiosResponse, AxiosRequestConfig, AxiosError } from "axios"`,
     !sdkHasSSE ? null : "import type NodeEventSource from \"eventsource\"",
     `import deepmerge from "deepmerge"`,
     "export const SDK_VERSION = \"" + sdkVersion + "\"",
