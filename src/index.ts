@@ -193,11 +193,9 @@ export async function generateSdk({
         if (isSSE) {
           return `CustomEventSource<${responseSchemaRef}>` 
         } else {
-          return `(AxiosResponse<${responseSchemaRef}> & {
-  status: ${statusCode}
-})`       
+          return `(AxiosResponse<${responseSchemaRef}> & { status: ${statusCode} })`       
         }
-      }).join(" | ") + " | AxiosResponse"
+      }).join(" | ")
 
       const securityKeys = Array.from(new Set((security?.map(e => Object.keys(e)) || [])))
 
@@ -224,11 +222,11 @@ ${method === "POST" ?
   `    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), ${requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)`
   : `    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), config ? deepmerge(defaultConfig, config) : defaultConfig)`
 }
-    return res
+    return res as ${responseTypeName}
   } catch (e) {
-    const { response } = e as AxiosError
-    if (response) {
-      return response
+    const { response: res } = e as AxiosError
+    if (res) {
+      return res as ${responseTypeName}
     }
     throw e
   }
