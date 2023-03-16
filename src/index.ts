@@ -21,7 +21,6 @@ export async function generateSdk({
     openapi = JSON.parse(readFileSync(openapi, "utf8")) as OpenAPIV3_1.Document
   }
 
-
   if (!sdkVersion || typeof sdkVersion !== "string") {
     sdkVersion = "0.1.0"
   } else if (!semver.valid(sdkVersion)) {
@@ -35,7 +34,8 @@ export async function generateSdk({
   
   // generate types
   const { data: typesCode,  exports: typesSet }  = await parse({
-    openapi: openapiV3_1
+    openapi: openapiV3_1,
+    bannerComment: "",
   })
 
   // generate sdk
@@ -49,6 +49,7 @@ export async function generateSdk({
   }, {})
 
   const securitySchemas = openapiV3_1.components?.securitySchemes || {}
+  const schemas = openapiV3_1.components?.schemas || {}
 
   let sdkHasSSE = false
   const functions = Object.entries(openapi.paths!).map(([path, pathItem]) => {
@@ -71,8 +72,31 @@ export async function generateSdk({
         responses,
         security
       } = typeof pathItem.post === "object" ? pathItem.post! : pathItem.get!
+      if (!operationId) {
+        console.warn("WARNING, SKIPPING ENDPOINT GENERATION:", `operationId is missing in, ${path} ${method}`)
+        return
+      }
+
+      const upperCamelCaseOperationId = `${operationId[0].toUpperCase()}${operationId.substring((1))}`
+
       let requestType
       let isSSE = false
+
+      const isConfigHeadersRequired = parameters ? (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "header" && p.required === true) || false : false
+      const isConfigPathRequired = parameters ? (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "path" && p.required === true) || false : false
+      const isConfigQueryRequired = parameters ? (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "query" && p.required === true) || false : false
+      
+      const isConfigRequired = isConfigHeadersRequired || isConfigPathRequired || isConfigQueryRequired
+      
+      const headersTypeKeyName = `${upperCamelCaseOperationId}HeaderParams`
+      const pathTypeKeyName = `${upperCamelCaseOperationId}PathParams`
+      const queryTypeKeyName = `${upperCamelCaseOperationId}QueryParams`
+
+      const hasCustomHeaders = parameters ? schemas[headersTypeKeyName] && (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "header") || false : false
+      const hasCustomPath = parameters ? schemas[pathTypeKeyName] && (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "path") || false : false
+      const hasCustomQuery = parameters ? schemas[queryTypeKeyName] && (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "query") || false : false
+      
+      const hasCustomParams = hasCustomHeaders || hasCustomPath || hasCustomQuery
 
       if (requestBody) {
         const ref = (requestBody as OpenAPIV3_1.ReferenceObject).$ref
@@ -200,32 +224,55 @@ export async function generateSdk({
       const securityKeys = Array.from(new Set((security?.map(e => Object.keys(e)) || [])))
 
       if (isSSE) {
-        const responseTypeName = `${operationId!.replace(/([A-Z])/g, " $1").split(" ").map(e => e[0].toUpperCase() + e.slice(1)).join("")}EventSource`
+        const responseTypeName = `${upperCamelCaseOperationId}EventSource`
+        const requestConfigTypeName = hasCustomParams ? `${upperCamelCaseOperationId}RequestConfig` : "SSERequestConfig"
+        if (hasCustomHeaders) { 
+          console.warn("WARNING, STRIPPING CUSTOM HEADERS:", `headers are not supported in ${method} ${path}; SSE endpoints cannot have custom headers`)
+        }
+        const requestConfigType = `{ ${
+          hasCustomPath ? `\n  path${isConfigPathRequired? "" : "?"}: ${pathTypeKeyName}` : "" 
+        }${
+          hasCustomQuery ? `\n  params${isConfigQueryRequired? "" : "?"}: ${queryTypeKeyName}` : "" 
+        }
+}`
         return [
           description ? `/**\n${description}\n*/` : "",
+          hasCustomParams ? `export type ${requestConfigTypeName} = SSERequestConfig & ${requestConfigType}` : null,
           `export type ${responseTypeName} = ${responseType}`,
-          `export function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}): ${responseTypeName} {
+          `export function ${operationId}(config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}): ${responseTypeName} {
   _checkSetup()
-  return new Proxy(new ES!(_getFnUrl("${operationId}")), _proxy) as ${responseTypeName}
+  const securityParams = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  return new Proxy(new ES!(_getFnUrl("${operationId}", config ? deepmerge(securityParams, config) : securityParams)), _proxy) as ${responseTypeName}
 }`           
         ].filter(e => e).join("\n")
       } else {
-        const responseTypeName = `Axios${operationId!.replace(/([A-Z])/g, " $1").split(" ").map(e => e[0].toUpperCase() + e.slice(1)).join("")}Response`
+        const responseTypeName = `Axios${upperCamelCaseOperationId}Response`
+        const requestConfigTypeName = hasCustomParams ? `Axios${upperCamelCaseOperationId}RequestConfig` : "AxiosRequestConfig"
+        const requestConfigType = `AxiosRequestConfig${!hasCustomParams ? "" : ` & { ${
+          hasCustomHeaders ? `\n  headers${isConfigHeadersRequired ? "" : "?"}: ${headersTypeKeyName}` : "" 
+        }${
+          hasCustomPath ? `\n  path${isConfigPathRequired? "" : "?"}: ${pathTypeKeyName}` : "" 
+        }${
+          hasCustomQuery ? `\n  params${isConfigQueryRequired? "" : "?"}: ${queryTypeKeyName}` : "" 
+        }
+}`}`
+
         return [
           description ? `/**\n${description}\n*/` : "",
+          hasCustomParams ? `export type ${requestConfigTypeName} = ${requestConfigType}` : null,
           `export type ${responseTypeName} = ${responseType}`,
-          `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}config?: AxiosRequestConfig): Promise<${responseTypeName}> {
+          `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}${`config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}`}): Promise<${responseTypeName}> {
   _checkSetup()
-  const defaultConfig: AxiosRequestConfig = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  const securityParams: AxiosRequestConfig = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  const handledStatusCodes = [${Object.keys(responses).map(e => e).join(", ")}]
   try {
-${method === "POST" ? 
-  `    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), ${requestType ? "data" : "undefined" }, config ? deepmerge(defaultConfig, config) : defaultConfig)`
-  : `    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"), config ? deepmerge(defaultConfig, config) : defaultConfig)`
-}
+    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "undefined, " }config ? deepmerge(securityParams, config) : securityParams)
+    _throwOnUnexpectedResponse(handledStatusCodes, res)
     return res as ${responseTypeName}
   } catch (e) {
     const { response: res } = e as AxiosError
     if (res) {
+      _throwOnUnexpectedResponse(handledStatusCodes, res)
       return res as ${responseTypeName}
     }
     throw e
@@ -237,7 +284,6 @@ ${method === "POST" ?
     return ""
   }).filter(e => e).join("\n\n")
 
-  sdkHasSSE = true
   const sdk = [
   `/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/member-delimiter-style */
@@ -253,6 +299,10 @@ ${method === "POST" ?
     "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
     "export let axios: AxiosStatic | undefined = undefined",
     !sdkHasSSE ? null : "export let ES: typeof EventSource | typeof NodeEventSource | undefined = undefined",
+    !sdkHasSSE ? null : `export type SSERequestConfig = {
+    params?: { [key: string]: any },
+    path?: { [key: string]: any }
+  }`,
     "export let env: string | undefined = undefined",
     `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
     `export interface CustomEventSource<T> extends EventSource {
@@ -283,6 +333,15 @@ ${method === "POST" ?
   }
   _auth[securitySchemaName] = value
 }`,
+    `const _throwOnUnexpectedResponse = (handledStatusCodes: number[], res: AxiosResponse) => {
+  if (handledStatusCodes.includes(res.status)) {
+    throw new ExtendedError({
+      message: \`Unexpected response status code: \${res.status}\`,
+      code: "UNEXPECTED_RESPONSE",
+      res
+    })
+  }
+}`,
     `function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, params: URLSearchParams } {
   const headers: { [key: string]: string } = {}
   const params = new URLSearchParams()
@@ -308,14 +367,41 @@ ${method === "POST" ?
   }).filter(e => e).join("\n  ")}
   return { headers, params }
 }`,
+
+  `export class ExtendedError<T> extends Error {
+  code: string
+  res: AxiosResponse<T>
+
+  constructor({ message, code, res }: { message: string, code: string, res: AxiosResponse<T> }) {
+    super(message)
+    this.code = code
+    this.res = res
+  }
+}`,
     `export const serverUrls: { [env: string]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
-    `function _getFnUrl(endpoint: string): string {
+    `function _getFnUrl(endpoint: string, options?: { path?: { [key: string]: any }, params?: { [key: string]: any } }): string {
   const baseUrl = serverUrls[env!.toLowerCase()]
   if (!baseUrl) {
     throw new Error(\`Invalid env: \${env}\`)
   }
 
-  return baseUrl.replace(/\\/$/, \"\") + "/" + endpoint.replace(/^\\//, \"\")
+  if (options?.path) {
+    Object.entries(options.path).forEach(([key, value]) => {
+      endpoint = endpoint.replace(\`{\${key}}\`, String(value))
+    })
+  }
+  
+  endpoint = endpoint.replace(/{.*?}/g, "")
+
+  const url = new URL(baseUrl.replace(/\\/$/, \"\") + "/" + endpoint.replace(/^\\//, \"\"))
+  
+  if (options?.params) {
+    Object.entries(options.params).forEach(([key, value]) => {
+      url.searchParams.set(key, typeof value === "object" ? JSON.stringify(value) : value)
+    })
+  }
+  
+  return url.toString()
 }`,
     `export function setup(params: { 
   axios: AxiosStatic
@@ -467,4 +553,3 @@ dist`
 
   writeFileSync(join(outputFolder, ".gitignore"), gitignore)
 }
-
