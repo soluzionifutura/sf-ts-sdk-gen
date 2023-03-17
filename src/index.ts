@@ -334,7 +334,7 @@ export async function generateSdk({
   _auth[securitySchemaName] = value
 }`,
     `const _throwOnUnexpectedResponse = (handledStatusCodes: number[], res: AxiosResponse) => {
-  if (handledStatusCodes.includes(res.status)) {
+  if (!handledStatusCodes.includes(res.status)) {
     throw new ExtendedError({
       message: \`Unexpected response status code: \${res.status}\`,
       code: "UNEXPECTED_RESPONSE",
