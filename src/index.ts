@@ -312,6 +312,13 @@ export async function generateSdk({
     !sdkHasSSE ? null : `type WritableKeysOf<T> = { [P in keyof T]: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, never> }[keyof T]`,
 
     !sdkHasSSE ? null : `const _proxy = {
+  get(target: any, key: any) {
+    const value = target[key]
+    if (typeof value === "function") {
+      return (...args: any[]) => value.apply(target, args)
+    }
+    return value
+  },
   set(target: EventSource, prop: WritableKeysOf<EventSource>, value: any): boolean {
     if (prop === "onmessage") {
       target[prop] = (event: MessageEvent) => {
@@ -394,7 +401,7 @@ export async function generateSdk({
   endpoint = endpoint.replace(/{.*?}/g, "")
 
   const url = new URL(baseUrl.replace(/\\/$/, \"\") + "/" + endpoint.replace(/^\\//, \"\"))
-  
+  kz
   if (options?.params) {
     Object.entries(options.params).forEach(([key, value]) => {
       url.searchParams.set(key, typeof value === "object" ? JSON.stringify(value) : value)
