@@ -266,7 +266,7 @@ export async function generateSdk({
   const securityParams: AxiosRequestConfig = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
   const handledStatusCodes = [${Object.keys(responses).map(e => e).join(", ")}]
   try {
-    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "undefined, " }config ? deepmerge(securityParams, config) : securityParams)
+    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
     _throwOnUnexpectedResponse(handledStatusCodes, res)
     return res as ${responseTypeName}
   } catch (e) {
@@ -297,13 +297,13 @@ export async function generateSdk({
     `import deepmerge from "deepmerge"`,
     "export const SDK_VERSION = \"" + sdkVersion + "\"",
     "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
-    "export let axios: AxiosStatic | undefined = undefined",
-    !sdkHasSSE ? null : "export let ES: typeof EventSource | typeof NodeEventSource | undefined = undefined",
+    "export let axios: AxiosStatic | undefined",
+    !sdkHasSSE ? null : "export let ES: typeof EventSource | typeof NodeEventSource | undefined",
     !sdkHasSSE ? null : `export type SSERequestConfig = {
     params?: { [key: string]: any },
     path?: { [key: string]: any }
   }`,
-    "export let env: string | undefined = undefined",
+    "export let env: string | undefined",
     `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
     `export interface CustomEventSource<T> extends EventSource {
   onmessage: (event: MessageEvent<T>) => void
