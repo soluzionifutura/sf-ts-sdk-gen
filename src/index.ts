@@ -292,12 +292,12 @@ export async function generateSdk({
  * DO NOT MODIFY IT BY HAND. Instead, modify the source
  * openapi definition and regenerate this file.
  */`,
-    `import type { AxiosStatic, AxiosResponse, AxiosRequestConfig, AxiosError } from "axios"`,
+    `import type { AxiosStatic, AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosError } from "axios"`,
     !sdkHasSSE ? null : "import type NodeEventSource from \"eventsource\"",
     `import deepmerge from "deepmerge"`,
     "export const SDK_VERSION = \"" + sdkVersion + "\"",
     "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
-    "export let axios: AxiosStatic | undefined",
+    "export let axios: AxiosStatic | AxiosInstance | undefined",
     !sdkHasSSE ? null : "export let ES: typeof EventSource | typeof NodeEventSource | undefined",
     !sdkHasSSE ? null : `export type SSERequestConfig = {
     params?: { [key: string]: any },
@@ -404,7 +404,7 @@ export async function generateSdk({
   return url.toString()
 }`,
     `export function setup(params: { 
-  axios: AxiosStatic
+  axios: AxiosStatic | AxiosInstance
   env: string${!sdkHasSSE ? "" : `
   ES: typeof EventSource | typeof NodeEventSource`}
   customServerUrls?: { [env: string]: string }
