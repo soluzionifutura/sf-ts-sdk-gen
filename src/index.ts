@@ -401,7 +401,6 @@ export async function generateSdk({
   endpoint = endpoint.replace(/{.*?}/g, "")
 
   const url = new URL(baseUrl.replace(/\\/$/, \"\") + "/" + endpoint.replace(/^\\//, \"\"))
-  kz
   if (options?.params) {
     Object.entries(options.params).forEach(([key, value]) => {
       url.searchParams.set(key, typeof value === "object" ? JSON.stringify(value) : value)
