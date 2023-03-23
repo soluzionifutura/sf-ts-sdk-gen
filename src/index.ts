@@ -305,7 +305,7 @@ export async function generateSdk({
   }`,
     "export let env: string | undefined",
     `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
-    `export interface CustomEventSource<T> extends EventSource {
+    !sdkHasSSE ? null : `export interface CustomEventSource<T> extends EventSource {
   onmessage: (event: MessageEvent<T>) => void
 }`,
     !sdkHasSSE ? null : `type IfEquals<X, Y, A, B> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : B`,
