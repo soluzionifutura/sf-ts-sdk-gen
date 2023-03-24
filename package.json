@@ -16,7 +16,7 @@
   "scripts": {
     "start": "tsdx watch --onSuccess 'npm test'",
     "build": "tsdx build",
-    "test": "./bin/cli.js ./test/definition.json ./test/sdk",
+    "test": "./bin/cli.js ./test/definition.json ./test/sdk --sdk-name @soluzionifutura/test-sdk --repo-url https://github.com/soluzionifutura/test-repo",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",

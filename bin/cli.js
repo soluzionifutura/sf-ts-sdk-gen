@@ -11,8 +11,8 @@ void (async () => {
     process.exit(0)
   }
   
-  const usage = `sf-ts-sdk-gen [input] [output] --sdk-version [version] --sdk-name [name]`
-  const { _: [input, output], "sdk-version": sdkVersion, "sdk-name": sdkName } = argv
+  const usage = `sf-ts-sdk-gen [input] [output] --sdk-version [version] --sdk-name [name] --repo-url [url]`
+  const { _: [input, output], "sdk-version": sdkVersion, "sdk-name": sdkName, "repo-url": repoUrl } = argv
   
   if (!input || !output) {
     console.error(usage)
@@ -28,7 +28,7 @@ void (async () => {
     openapi = data
   }
 
-  await generateSdk({ openapi: openapi || input, outputFolder: output, sdkVersion, sdkName })
+  await generateSdk({ openapi: openapi || input, outputFolder: output, sdkVersion, sdkName, repoUrl })
   console.log(`Generated ${output}`)
 })()
   .catch(console.error)
