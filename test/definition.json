@@ -3704,13 +3704,7 @@
         }
     },
     "components": {
-        "securitySchemes": {
-            "roles": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "Authorization"
-            }
-        },
+        
         "schemas": {
             "ImageUrls": {
                 "type": "object",

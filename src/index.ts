@@ -52,8 +52,8 @@ export async function generateSdk({
 
   const securitySchemas = openapiV3_1.components?.securitySchemes || {}
   const schemas = openapiV3_1.components?.schemas || {}
-
-  let sdkHasSSE = false
+  const hasSecurity = Object.keys(securitySchemas).length > 0
+  let hasSSE = false
   const functions = Object.entries(openapi.paths!).map(([path, pathItem]) => {
     if (!pathItem) {
       return
@@ -99,7 +99,7 @@ export async function generateSdk({
       const hasCustomQuery = parameters ? schemas[queryTypeKeyName] && (parameters as OpenAPIV3_1.ParameterObject[]).some(p => p.in === "query") || false : false
       
       const hasCustomParams = hasCustomHeaders || hasCustomPath || hasCustomQuery
-
+      
       if (requestBody) {
         const ref = (requestBody as OpenAPIV3_1.ReferenceObject).$ref
         if (!ref) {
@@ -190,7 +190,7 @@ export async function generateSdk({
             return
           } else {
             isSSE = true
-            sdkHasSSE = true
+            hasSSE = true
           }
         }
         
@@ -243,7 +243,7 @@ export async function generateSdk({
           `export type ${responseTypeName} = ${responseType}`,
           `export function ${operationId}(config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}): ${responseTypeName} {
   _checkSetup()
-  const securityParams = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  const securityParams = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
   return new Proxy(new ES!(_getFnUrl("${operationId}", config ? deepmerge(securityParams, config) : securityParams)), _proxy) as ${responseTypeName}
 }`           
         ].filter(e => e).join("\n")
@@ -265,7 +265,7 @@ export async function generateSdk({
           `export type ${responseTypeName} = ${responseType}`,
           `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}${`config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}`}): Promise<${responseTypeName}> {
   _checkSetup()
-  const securityParams: AxiosRequestConfig = ${security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
   const handledStatusCodes = [${Object.keys(responses).map(e => e).join(", ")}]
   try {
     const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
@@ -295,25 +295,25 @@ export async function generateSdk({
  * openapi definition and regenerate this file.
  */`,
     `import type { AxiosStatic, AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosError } from "axios"`,
-    !sdkHasSSE ? null : "import type NodeEventSource from \"eventsource\"",
+    !hasSSE ? null : "import type NodeEventSource from \"eventsource\"",
     `import deepmerge from "deepmerge"`,
     "export const SDK_VERSION = \"" + sdkVersion + "\"",
     "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
     "export let axios: AxiosStatic | AxiosInstance | undefined",
-    !sdkHasSSE ? null : "export let ES: typeof EventSource | typeof NodeEventSource | undefined",
-    !sdkHasSSE ? null : `export type SSERequestConfig = {
+    !hasSSE ? null : "export let ES: typeof EventSource | typeof NodeEventSource | undefined",
+    !hasSSE ? null : `export type SSERequestConfig = {
     params?: { [key: string]: any },
     path?: { [key: string]: any }
   }`,
     "export let env: string | undefined",
-    `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
-    !sdkHasSSE ? null : `export interface CustomEventSource<T> extends EventSource {
+    !hasSecurity ? null : `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
+    !hasSSE ? null : `export interface CustomEventSource<T> extends EventSource {
   onmessage: (event: MessageEvent<T>) => void
 }`,
-    !sdkHasSSE ? null : `type IfEquals<X, Y, A, B> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : B`,
-    !sdkHasSSE ? null : `type WritableKeysOf<T> = { [P in keyof T]: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, never> }[keyof T]`,
+    !hasSSE ? null : `type IfEquals<X, Y, A, B> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : B`,
+    !hasSSE ? null : `type WritableKeysOf<T> = { [P in keyof T]: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, never> }[keyof T]`,
 
-    !sdkHasSSE ? null : `const _proxy = {
+    !hasSSE ? null : `const _proxy = {
   get(target: any, key: any) {
     const value = target[key]
     if (typeof value === "function") {
@@ -336,7 +336,7 @@ export async function generateSdk({
     return true
   }
 }`,
-    `export function setAuth(securitySchemaName: keyof typeof _auth, value: string | null): void {
+  !hasSecurity ? null : `export function setAuth(securitySchemaName: keyof typeof _auth, value: string | null): void {
   if (typeof _auth[securitySchemaName] === "undefined") {
     throw new Error(\`Invalid security schema name: \${securitySchemaName}\`)
   }
@@ -351,7 +351,7 @@ export async function generateSdk({
     })
   }
 }`,
-    `function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, params: URLSearchParams } {
+  !hasSecurity ? null : `function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, params: URLSearchParams } {
   const headers: { [key: string]: string } = {}
   const params = new URLSearchParams()
   ${Object.entries(securitySchemas).map(([key, value]) => {
@@ -413,12 +413,12 @@ export async function generateSdk({
 }`,
     `export function setup(params: { 
   axios: AxiosStatic | AxiosInstance
-  env: string${!sdkHasSSE ? "" : `
+  env: string${!hasSSE ? "" : `
   ES: typeof EventSource | typeof NodeEventSource`}
   customServerUrls?: { [env: string]: string }
 }) {
   axios = params.axios
-  env = params.env${!sdkHasSSE ? "" : `
+  env = params.env${!hasSSE ? "" : `
   ES = params.ES`}
   if (params.customServerUrls) {
     Object.assign(serverUrls, params.customServerUrls)
@@ -433,7 +433,7 @@ export async function generateSdk({
   }
   if (!env) {
     throw new Error("env is not defined. Please run the sdk.setup() function or set env to the sdk.")
-  } ${!sdkHasSSE ? "" : `
+  } ${!hasSSE ? "" : `
   if (!ES) {
     throw new Error("EventSource is not defined. Please run the sdk.setup() function or set ES to the sdk.")
   }`}
@@ -499,7 +499,7 @@ export async function generateSdk({
     }
   }
 
-  if (sdkHasSSE) {
+  if (hasSSE) {
     packageJson.dependencies["@types/eventsource"] = "^1.1.11"
   }
 
