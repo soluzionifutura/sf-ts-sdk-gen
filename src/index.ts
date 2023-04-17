@@ -244,7 +244,7 @@ export async function generateSdk({
           `export function ${operationId}(config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}): ${responseTypeName} {
   _checkSetup()
   const securityParams = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
-  return new Proxy(new ES!(_getFnUrl("${operationId}", config ? deepmerge(securityParams, config) : securityParams)), _proxy) as ${responseTypeName}
+  return new Proxy(new ES!(_getFnUrl("${operationId}", config ? deepmerge(securityParams, config) : securityParams)${hasSecurity ? `, { withCredentials: true }` : ""}), _proxy) as ${responseTypeName}
 }`           
         ].filter(e => e).join("\n")
       } else {
@@ -351,7 +351,7 @@ export async function generateSdk({
     })
   }
 }`,
-  !hasSecurity ? null : `function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, params: URLSearchParams } {
+  !hasSecurity ? null : `function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, params: URLSearchParams, withCredentials: boolean } {
   const headers: { [key: string]: string } = {}
   const params = new URLSearchParams()
   ${Object.entries(securitySchemas).map(([key, value]) => {
@@ -374,7 +374,7 @@ export async function generateSdk({
       return ""
     }
   }).filter(e => e).join("\n  ")}
-  return { headers, params }
+  return { headers, params, withCredentials: true }
 }`,
 
   `export class ExtendedError<T> extends Error {
