@@ -492,7 +492,7 @@ export async function generateSdk({
       "tsdx": "^0.14.1",
       "tslib": "^2.5.0",
       "typescript": "^3.9.10",
-      "axios": "^1.3.4"
+      "axios": "1.3.6"
     },
     "dependencies": {
       "deepmerge": "4.3.0"
