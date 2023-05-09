@@ -244,7 +244,7 @@ export async function generateSdk({
           `export function ${operationId}(config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}): ${responseTypeName} {
   _checkSetup()
   const securityParams = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
-  return new Proxy(new ES!(_getFnUrl("${operationId}", config ? deepmerge(securityParams, config) : securityParams)${hasSecurity ? `, { withCredentials: true }` : ""}), _proxy) as ${responseTypeName}
+  return new Proxy(new ES!(_getFnUrl("${path}", config ? deepmerge(securityParams, config) : securityParams)${hasSecurity ? `, { withCredentials: true }` : ""}), _proxy) as ${responseTypeName}
 }`           
         ].filter(e => e).join("\n")
       } else {
@@ -268,7 +268,7 @@ export async function generateSdk({
   const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
   const handledStatusCodes = [${Object.keys(responses).map(e => e).join(", ")}]
   try {
-    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${operationId}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
+    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
     _throwOnUnexpectedResponse(handledStatusCodes, res)
     return res as ${responseTypeName}
   } catch (e) {
