@@ -623,6 +623,32 @@ setup({
 setAuth("apiKey", "your_api_key")
 \`\`\`
 
+## Usage
+
+The sdk provides several exports which can be used to
+interact with the ${sdkName}. Below, you'll find the signatures of all
+exported functions and constants, along with brief descriptions of their purpose.
+
+### Constants
+
+1. \`SDK_VERSION: string\`  
+Represents the current version of the SDK.
+2. \`API_VERSION: string\`  
+Represents the version of the API the SDK is designed to interact with.
+3. \`serverUrls: { [env: string]: string }\`  
+A dictionary of server URLs for different environments such as 'local', 'staging', and 'production'.  
+You can add or override these URLs via the \`setup\` function.
+
+### Functions
+
+1. \`setup(params: { axios: AxiosStatic | AxiosInstance env: string ${hasSSE ? "ES: typeof EventSource | typeof NodeEventSource " : ""}customServerUrls?: { [env: string]: string } }): void\`  
+This function is used to initialize the SDK with necessary configurations.
+You need to provide an instance of axios, the environment name env${hasSSE ? ", an EventSource instance," : ""}
+and optionally, a set of custom server URLs.
+2. \`setAuth(securitySchemaName: keyof typeof _auth, value: string | null): void\`
+This function is used to set the authentication parameters.
+You need to provide the \`securitySchemaName\` and its \`value\`.
+If the \`securitySchemaName\` does not exist, it will throw an error.
 `
   writeFileSync(join(outputFolder, "README.md"), readme)
 }
