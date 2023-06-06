@@ -151,7 +151,7 @@ export async function generateSdk({
         return
       }
 
-      const responseType = Object.entries(responses).map(([statusCode, response]) => {
+      const responseTypes = Object.entries(responses).map(([statusCode, response]) => {
         const ref = (response as OpenAPIV3_1.ReferenceObject).$ref
         if (!ref) {
           console.warn("WARNING, SKIPPING ENDPOINT GENERATION:", `response.$ref is missing in ${method} ${path} ${statusCode}; response must be a $ref to a schema`)
@@ -221,7 +221,11 @@ export async function generateSdk({
         } else {
           return `(AxiosResponse<${responseSchemaRef}> & { status: ${statusCode} })`       
         }
-      }).join(" | ")
+      })
+
+      const responseType = responseTypes.join(" | ")
+      const successResponseType = responseTypes.filter(e => e && !e.includes("4") && !e.includes("5")).join(" | ")
+      const errorResponseType = responseTypes.filter(e => e && (e.includes("4") || e.includes("5"))).join(" | ")
 
       const securityKeys = Array.from(new Set((security?.map(e => Object.keys(e)) || [])))
 
@@ -249,6 +253,8 @@ export async function generateSdk({
         ].filter(e => e).join("\n")
       } else {
         const responseTypeName = `Axios${upperCamelCaseOperationId}Response`
+        const successResponseTypeName = `Axios${upperCamelCaseOperationId}SuccessResponse`
+        const errorResponseTypeName = `Axios${upperCamelCaseOperationId}ErrorResponse`
         const requestConfigTypeName = hasCustomParams ? `Axios${upperCamelCaseOperationId}RequestConfig` : "AxiosRequestConfig"
         const requestConfigType = `AxiosRequestConfig${!hasCustomParams ? "" : ` & { ${
           hasCustomHeaders ? `\n  headers${isConfigHeadersRequired ? "" : "?"}: ${headersTypeKeyName}` : "" 
@@ -262,7 +268,9 @@ export async function generateSdk({
         return [
           description ? `/**\n${description}\n*/` : "",
           hasCustomParams ? `export type ${requestConfigTypeName} = ${requestConfigType}` : null,
-          `export type ${responseTypeName} = ${responseType}`,
+          `export type ${successResponseTypeName} = ${successResponseType}`,
+          `export type ${errorResponseTypeName} = ${errorResponseType}`,
+          `export type ${responseTypeName} = ${successResponseTypeName} | ${errorResponseTypeName}`,
           `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}${`config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}`}): Promise<${responseTypeName}> {
   _checkSetup()
   const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
@@ -342,12 +350,12 @@ export async function generateSdk({
   }
   _auth[securitySchemaName] = value
 }`,
-    `const _throwOnUnexpectedResponse = (handledStatusCodes: number[], res: AxiosResponse) => {
-  if (!handledStatusCodes.includes(res.status)) {
+    `const _throwOnUnexpectedResponse = (handledStatusCodes: number[], response: AxiosResponse) => {
+  if (!handledStatusCodes.includes(response.status)) {
     throw new ExtendedError({
       message: \`Unexpected response status code: \${res.status}\`,
       code: "UNEXPECTED_RESPONSE",
-      res
+      response
     })
   }
 }`,
@@ -379,12 +387,12 @@ export async function generateSdk({
 
   `export class ExtendedError<T> extends Error {
   code: string
-  res: AxiosResponse<T>
+  response: AxiosResponse<T>
 
-  constructor({ message, code, res }: { message: string, code: string, res: AxiosResponse<T> }) {
+  constructor({ message, code, response }: { message: string, code: string, response: AxiosResponse<T> }) {
     super(message)
     this.code = code
-    this.res = res
+    this.response = response
   }
 }`,
     `export const serverUrls: { [env: string]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
