@@ -225,8 +225,13 @@ export async function generateSdk({
 
       const responseType = responseTypes.join(" | ")
       const successResponseType = responseTypes.filter(e => e && !e.includes("4") && !e.includes("5")).join(" | ")
-      const errorResponseType = responseTypes.filter(e => e && (e.includes("4") || e.includes("5"))).join(" | ") || "never"
-
+      let errorResponseType: string 
+      const errorResponseTypeArr = responseTypes.filter(e => e && (e.includes("4") || e.includes("5")))
+      if (errorResponseTypeArr.length === 0) {
+        errorResponseType = "never"
+      } else {
+        errorResponseType = `(${errorResponseTypeArr.join(" | ")}) & { path: "${path}" }`
+      }
       const securityKeys = Array.from(new Set((security?.map(e => Object.keys(e)) || [])))
 
       if (isSSE) {
@@ -315,7 +320,8 @@ export async function generateSdk({
     params?: { [key: string]: any },
     path?: { [key: string]: any }
   }`,
-    "export let env: string | undefined",
+    `export type Env = ${Object.keys(serverUrls).map(e => `"${e}"`).join(" | ")} | string`,
+    "export let env: Env | undefined",
     !hasSecurity ? null : `const _auth: { ${Object.keys(securitySchemas).map(e => `"${e}": string | null`)} } = { ${Object.keys(securitySchemas).map(e => `"${e}": null`).join(", ")} }`,
     !hasSSE ? null : `export interface CustomEventSource<T> extends EventSource {
   onmessage: (event: MessageEvent<T>) => void
@@ -334,7 +340,7 @@ export async function generateSdk({
   set(target: EventSource, prop: WritableKeysOf<EventSource>, value: any): boolean {
     if (prop === "onmessage") {
       target[prop] = (event: MessageEvent): void => {
-        try {
+        try { 
           value({ ...event, data: JSON.parse(event.data) })
         } catch (_) {
           value(event)
@@ -398,7 +404,7 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
     this.response = response
   }
 }`,
-    `export const serverUrls: { [env: string]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
+    `export const serverUrls: { [env: Env]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
     `function _getFnUrl(endpoint: string, options?: { path?: { [key: string]: any }, params?: { [key: string]: any } }): string {
   const baseUrl = serverUrls[env!.toLowerCase()]
   if (!baseUrl) {
@@ -424,7 +430,7 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
 }`,
     `export function setup(params: { 
   axios: AxiosStatic | AxiosInstance
-  env: string${!hasSSE ? "" : `
+  env: Env${!hasSSE ? "" : `
   ES: typeof EventSource | typeof NodeEventSource`}
   customServerUrls?: { [env: string]: string }
 }): void {
