@@ -404,7 +404,7 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
     this.response = response
   }
 }`,
-    `export const serverUrls: { [env: Env]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
+    `export const serverUrls: { [env in Env]: string } = ${JSON.stringify(serverUrls, null, 2)}`,
     `function _getFnUrl(endpoint: string, options?: { path?: { [key: string]: any }, params?: { [key: string]: any } }): string {
   const baseUrl = serverUrls[env!.toLowerCase()]
   if (!baseUrl) {
