@@ -3,6 +3,7 @@ import { parse } from "@soluzioni-futura/openapi2ts"
 import { join } from "path"
 import semver from "semver"
 import { OpenAPIV3_1 } from "openapi-types"
+import SwaggerParser from "@apidevtools/swagger-parser"
 
 export type Options = {
   openapi: OpenAPIV3_1.Document | string,
@@ -30,6 +31,8 @@ export async function generateSdk({
   }
 
   const openapiV3_1 = openapi as OpenAPIV3_1.Document
+  // dereference openapi: the JSON.parse(JSON.stringify()) is done to clone the object and avoid mutating the original openapi object
+  const openapiV3_1Deref = await SwaggerParser.dereference(JSON.parse(JSON.stringify(openapiV3_1)))
   const SDK_NAME = sdkName || `${openapiV3_1.info.title}-sdk`
 
   ensureDirSync(join(outputFolder, "src"))
@@ -65,6 +68,7 @@ export async function generateSdk({
     ) {
 
       const method = pathItem.post ? "POST" : "GET"
+      const derefPathItem = openapiV3_1Deref.paths![path]!
 
       const {
         parameters,
@@ -74,6 +78,10 @@ export async function generateSdk({
         responses,
         security
       } = typeof pathItem.post === "object" ? pathItem.post! : pathItem.get!
+
+      const {
+        responses: derefResponses
+      } = typeof derefPathItem.post === "object" ? derefPathItem.post! : derefPathItem.get!
       if (!operationId) {
         console.warn("WARNING, SKIPPING ENDPOINT GENERATION:", `operationId is missing in, ${path} ${method}`)
         return
@@ -278,17 +286,22 @@ export async function generateSdk({
           `export type ${responseTypeName} = ${successResponseTypeName} | ${errorResponseTypeName}`,
           `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}${`config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}`}): Promise<${responseTypeName}> {
   _checkSetup()
-  const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" }
-  const handledStatusCodes = [${Object.keys(responses).map(e => e).join(", ")}]
+  const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
+  const handledResponses = [${Object.entries(derefResponses).map(([key, value]) => { 
+    Object.values(value.content).forEach(e => {
+      
+    })
+    return key 
+  }).join(", ")}]
   try {
-    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "" : "?"}.path } ` : ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
-    _throwOnUnexpectedResponse(handledStatusCodes, res)
-    return res as ${responseTypeName}
+    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
+    _throwOnUnexpectedResponse(handledResponses, res)
+    return res as ${successResponseTypeName}
   } catch (e) {
     const { response: res } = e as AxiosError
     if (res) {
-      _throwOnUnexpectedResponse(handledStatusCodes, res)
-      return res as ${responseTypeName}
+      _throwOnUnexpectedResponse(handledResponses, res)
+      return res as ${errorResponseTypeName}
     }
     throw e
   }
@@ -358,9 +371,9 @@ export async function generateSdk({
   }
   _auth[securitySchemaName] = value
 }`,
-    `const _throwOnUnexpectedResponse = (handledStatusCodes: number[], response: AxiosResponse): void => {
-  if (!handledStatusCodes.includes(response.status)) {
-    throw new ExtendedError({
+    `const _throwOnUnexpectedResponse = (handledResponses: number[], response: AxiosResponse): void => {
+  if (!handledResponses.includes(response.status)) {
+    throw new ResponseError({
       message: \`Unexpected response status code: \${response.status}\`,
       code: "UNEXPECTED_RESPONSE",
       response
@@ -402,11 +415,11 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
   return { headers, params, withCredentials: true }
 }`,
 
-    `export class ExtendedError<T> extends Error {
+  `export class ResponseError<T> extends Error {
   code: string
-  response: AxiosResponse<T>
+  response: T
 
-  constructor({ message, code, response }: { message: string, code: string, response: AxiosResponse<T> }) {
+  constructor({ message, code, response }: { message: string, code: string, response: T }) {
     super(message)
     this.code = code
     this.response = response

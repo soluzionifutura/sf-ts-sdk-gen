@@ -43,6 +43,7 @@
     "typescript": "^3.9.10"
   },
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
     "@soluzioni-futura/openapi2ts": "1.5.0",
     "axios": "1.3.6",
     "fs-extra": "^11.1.0",
