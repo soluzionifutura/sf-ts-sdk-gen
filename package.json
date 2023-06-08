@@ -30,11 +30,11 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^8.2.4",
     "@soluzioni-futura/eslint-config-soluzioni-futura": "^2.2.0",
+    "@types/fs-extra": "^11.0.1",
+    "@types/semver": "^7.3.13",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "eslint": "^7.19.0",
-    "@types/fs-extra": "^11.0.1",
-    "@types/semver": "^7.3.13",
     "husky": "^8.0.3",
     "openapi-types": "^12.1.0",
     "size-limit": "^8.2.4",
