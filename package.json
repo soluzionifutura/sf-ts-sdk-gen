@@ -20,13 +20,19 @@
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "eslint": "eslint '**/*.{ts,js}' --ignore-pattern node_modules/; exit 0",
+    "eslint:fix": "eslint '**/*.{ts,js}' --fix --ignore-pattern node_modules/; exit 0"
   },
   "name": "@soluzioni-futura/sf-ts-sdk-gen",
   "author": "Giovanni Bruno",
   "module": "dist/sf-ts-sdk-gen.esm.js",
   "devDependencies": {
     "@size-limit/preset-small-lib": "^8.2.4",
+    "@soluzioni-futura/eslint-config-soluzioni-futura": "^2.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.2",
+    "@typescript-eslint/parser": "^4.14.2",
+    "eslint": "^7.19.0",
     "@types/fs-extra": "^11.0.1",
     "@types/semver": "^7.3.13",
     "husky": "^8.0.3",
