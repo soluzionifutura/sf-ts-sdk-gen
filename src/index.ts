@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { readFileSync, ensureDirSync, writeFileSync } from "fs-extra"
 import { parse } from "@soluzioni-futura/openapi2ts"
 import { join } from "path"
@@ -286,15 +287,27 @@ export async function generateSdk({
           `export type ${responseTypeName} = ${successResponseTypeName} | ${errorResponseTypeName}`,
           `export async function ${operationId}(${requestType ? `data: ${requestType}, ` : ""}${`config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}`}): Promise<${responseTypeName}> {
   _checkSetup()
-  const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" } 
-  const handledResponses = [${Object.entries(derefResponses).map(([key, value]) => { 
-    Object.values(value.content).forEach(e => {
-      
-    })
-    return key 
-  }).join(", ")}]
+  const securityParams: AxiosRequestConfig = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" }
+  const handledResponses = ${JSON.stringify(Object.entries(derefResponses).reduce((acc: {[key: string]: { code?: string[] | null } }, [key, value]: [string, OpenAPIV3_1.ResponseObject]) => {
+    const codes = Object.values(value.content!).flatMap(e => {
+      const code: OpenAPIV3_1.SchemaObject | undefined = (e.schema! as OpenAPIV3_1.SchemaObject).properties?.code
+      return code?.enum
+    }).filter(e => e)
+
+    if (!acc[key]) {
+      acc[key] = { }
+    }
+
+    if (codes.length) {
+      acc[key].code = codes
+    } else {
+      acc[key].code = null
+    }
+
+    return acc
+  }, {}), null, 2).split("\n").join("\n  ")}
   try {
-    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "": "?"}.path } `: ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
+    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "" : "?"}.path } ` : ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
     _throwOnUnexpectedResponse(handledResponses, res)
     return res as ${successResponseTypeName}
   } catch (e) {
@@ -314,6 +327,7 @@ export async function generateSdk({
 
   const sdk = [
     `/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable quote-props */
 /* eslint-disable @typescript-eslint/member-delimiter-style */
@@ -371,8 +385,21 @@ export async function generateSdk({
   }
   _auth[securitySchemaName] = value
 }`,
-    `const _throwOnUnexpectedResponse = (handledResponses: number[], response: AxiosResponse): void => {
-  if (!handledResponses.includes(response.status)) {
+    "export type HandledResponses = { [status: string]: { code: string[] | null } }",
+    `const _throwOnUnexpectedResponse = (handledResponses: HandledResponses, response: AxiosResponse): void => {
+  const handledResponsesForStatus = handledResponses[response.status]
+  if (handledResponsesForStatus) {
+    const handledResponseCodes = handledResponsesForStatus.code
+    if (Array.isArray(handledResponseCodes)) {
+      if (!handledResponseCodes.includes(response.data.code)) {
+        throw new ResponseError({
+          message: \`Unexpected response code: \${response.data.code}\`,
+          code: "UNEXPECTED_RESPONSE",
+          response
+        })
+      }
+    }
+  } else {
     throw new ResponseError({
       message: \`Unexpected response status code: \${response.status}\`,
       code: "UNEXPECTED_RESPONSE",
@@ -415,7 +442,7 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
   return { headers, params, withCredentials: true }
 }`,
 
-  `export class ResponseError<T> extends Error {
+    `export class ResponseError<T> extends Error {
   code: string
   response: T
 
