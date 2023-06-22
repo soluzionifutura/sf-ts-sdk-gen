@@ -262,7 +262,7 @@ export async function generateSdk({
           `export function ${operationId}(config${isConfigRequired ? "" : "?"}: ${requestConfigTypeName}): ${responseTypeName} {
   _checkSetup()
   const securityParams = ${hasSecurity && security && securityKeys.length ? `_getAuth(new Set([${securityKeys.map(e => `"${e}"`).join(", ")}]))` : "{}" }
-  return new Proxy(new ES!(_getFnUrl("${path}", config ? deepmerge(securityParams, config) : securityParams)${hasSecurity ? ", { withCredentials: true }" : ""}), _proxy) as ${responseTypeName}
+  return new Proxy(new ES!(_getFnUrl("${path}", config ? deepmerge(securityParams, config, { isMergeableObject: isPlainObject }) : securityParams)${hasSecurity ? ", { withCredentials: true }" : ""}), _proxy) as ${responseTypeName}
 }`
         ].filter(e => e).join("\n")
       } else {
@@ -307,7 +307,7 @@ export async function generateSdk({
     return acc
   }, {}), null, 2).split("\n").join("\n  ")}
   try {
-    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "" : "?"}.path } ` : ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config) : securityParams)
+    const res = await axios!.${method.toLowerCase()}(_getFnUrl("${path}"${hasCustomPath ? `, { path: config${isConfigRequired ? "" : "?"}.path } ` : ""}), ${method === "GET" ? "" : requestType ? "data, " : "null, " }config ? deepmerge(securityParams, config, { isMergeableObject: isPlainObject }) : securityParams)
     _throwOnUnexpectedResponse(handledResponses, res)
     return res as ${successResponseTypeName}
   } catch (e) {
@@ -339,6 +339,31 @@ export async function generateSdk({
     "import type { AxiosStatic, AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosError } from \"axios\"",
     !hasSSE ? null : "import type NodeEventSource from \"eventsource\"",
     "import deepmerge from \"deepmerge\"",
+    `function _isObject(o: any): boolean {
+  return Object.prototype.toString.call(o) === "[object Object]"
+}
+
+export function isPlainObject(o: any): boolean {
+  if (_isObject(o) === false) {
+    return false
+  }
+
+  const ctor = o.constructor
+  if (ctor === undefined) {
+    return true
+  }
+
+  const prot = ctor.prototype
+  if (_isObject(prot) === false) {
+    return false
+  }
+
+  if (Object.prototype.hasOwnProperty.call(prot, "isPrototypeOf") === false) {
+    return false
+  }
+
+  return true
+}`,
     "export const SDK_VERSION = \"" + sdkVersion + "\"",
     "export const API_VERSION = \"" + openapiV3_1.info.version + "\"",
     "export let axios: AxiosStatic | AxiosInstance | undefined",
