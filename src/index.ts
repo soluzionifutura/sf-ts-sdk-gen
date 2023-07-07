@@ -315,8 +315,9 @@ export async function generateSdk({
     if (res) {
       _throwOnUnexpectedResponse(handledResponses, res)
       return res as ${errorResponseTypeName}
+    } else {
+      throw e
     }
-    throw e
   }
 }`
         ].filter(e => e).join("\n")
