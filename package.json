@@ -1,8 +1,32 @@
 {
-  "version": "1.6.2",
+  "version": "1.6.3",
   "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "splitting": false,
+    "sourcemap": true,
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "clean": true,
+    "dts": true,
+    "treeshake": true
+  },
+
   "files": [
     "dist",
     "src"
@@ -14,19 +38,17 @@
     "sf-ts-sdk-gen": "bin/cli.js"
   },
   "scripts": {
-    "start": "tsdx watch --onSuccess 'npm test'",
-    "build": "tsdx build",
+    "start": "tsup src/index.ts --watch --onSuccess 'npm test'",
+    "build": "tsup",
     "test": "./bin/cli.js ./test/definition.json ./test/sdk --sdk-name @soluzionifutura/test-sdk --repo-url https://github.com/soluzionifutura/test-repo",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build",
+    "prepare": "tsup",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "eslint": "eslint '**/*.{ts,js}' --ignore-pattern node_modules/; exit 0",
     "eslint:fix": "eslint '**/*.{ts,js}' --fix --ignore-pattern node_modules/; exit 0"
   },
   "name": "@soluzioni-futura/sf-ts-sdk-gen",
-  "author": "Giovanni Bruno",
-  "module": "dist/sf-ts-sdk-gen.esm.js",
+  "author": "Soluzioni Futura (info@soluzionifutura.it)",
   "devDependencies": {
     "@size-limit/preset-small-lib": "^8.2.4",
     "@soluzioni-futura/eslint-config-soluzioni-futura": "^2.2.0",
@@ -38,9 +60,9 @@
     "husky": "^8.0.3",
     "openapi-types": "^12.1.0",
     "size-limit": "^8.2.4",
-    "tsdx": "^0.14.1",
     "tslib": "^2.5.0",
-    "typescript": "^3.9.10"
+    "tsup": "^7.1.0",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",

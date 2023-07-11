@@ -558,23 +558,47 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
     name: SDK_NAME,
     version: sdkVersion,
     license: pkgLicense,
-    main: "dist/index.js",
-    typings: "dist/index.d.ts",
+
+    // module: `dist/${SDK_NAME}.esm.js`,
+
+    main: "./dist/index.js",
+    module: "./dist/index.mjs",
+    types: "./dist/index.d.ts",
+    typings: "./dist/index.d.ts",
+    exports: {
+      ".": {
+        require: "./dist/index.js",
+        import: "./dist/index.mjs",
+        types: "./dist/index.d.ts"
+      }
+    },
+
+    tsup: {
+      entry: ["src/index.ts"],
+      splitting: false,
+      sourcemap: true,
+      format: [
+        "cjs",
+        "esm"
+      ],
+      clean: true,
+      dts: true,
+      treeshake: true
+    },
+
     files: [
       "dist",
       "src"
     ],
     engines,
     scripts: {
-      build: "tsdx build && npm run build:package",
-      lint: "tsdx lint",
-      prepare: "tsdx build && npm run build:package",
+      build: "tsup",
+      prepare: "tsup && npm run build:package",
       size: "size-limit",
       analyze: "size-limit --why",
       "build:package": `echo '${JSON.stringify(buildPackageJson)}' > dist/package.json`
     },
     author,
-    module: `dist/${SDK_NAME}.esm.js`,
     sideEffects: false,
     devDependencies: {
       "@size-limit/preset-small-lib": "^8.2.4",
@@ -582,9 +606,9 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
       husky: "^8.0.3",
       "openapi-types": "^12.1.0",
       "size-limit": "^8.2.4",
-      tsdx: "^0.14.1",
       tslib: "^2.5.0",
-      typescript: "^3.9.10",
+      tsup: "^7.1.0",
+      typescript: "^5.1.6",
       axios: "1.3.6"
     },
     dependencies: {
@@ -601,8 +625,9 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
   const tsconfig = {
     include: ["src", "types"],
     compilerOptions: {
-      module: "esnext",
-      lib: ["dom", "esnext"],
+      module: "ES6",
+      lib: ["dom", "ES6"],
+      target: "ES6",
       importHelpers: true,
       declaration: true,
       sourceMap: true,
