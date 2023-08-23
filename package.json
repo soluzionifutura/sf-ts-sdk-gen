@@ -41,6 +41,7 @@
     "start": "tsup src/index.ts --watch --onSuccess 'npm test'",
     "build": "tsup",
     "test": "./bin/cli.js ./test/definition.json ./test/sdk --sdk-name @soluzionifutura/test-sdk --repo-url https://github.com/soluzionifutura/test-repo",
+    "test-gitpkg": "./bin/cli.js ./test/definition.json ./test/sdk --sdk-name @soluzionifutura/test-sdk --repo-url https://github.com/soluzionifutura/test-repo --gitpkg soluzionifutura",
     "prepare": "tsup",
     "size": "size-limit",
     "analyze": "size-limit --why",

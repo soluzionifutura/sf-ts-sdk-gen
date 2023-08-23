@@ -11,7 +11,8 @@ export type Options = {
   outputFolder: string,
   sdkName?: string,
   sdkVersion?: string,
-  repoUrl?: string
+  repoUrl?: string,
+  githubUsername?: string
 }
 
 export async function generateSdk({
@@ -19,7 +20,8 @@ export async function generateSdk({
   outputFolder,
   sdkName,
   sdkVersion,
-  repoUrl
+  repoUrl,
+  githubUsername
 }: Options): Promise<void> {
   if (typeof openapi === "string") {
     openapi = JSON.parse(readFileSync(openapi, "utf8")) as OpenAPIV3_1.Document
@@ -613,7 +615,10 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
     },
     dependencies: {
       deepmerge: "4.3.0"
-    }
+    },
+    publishConfig: githubUsername ? {
+      [`@${githubUsername}:registry`]: "https://npm.pkg.github.com"
+    } : undefined
   }
 
   if (hasSSE) {
@@ -621,6 +626,11 @@ function _getAuth(keys: Set<string>): { headers: { [key: string]: string }, para
   }
 
   writeFileSync(join(outputFolder, "package.json"), JSON.stringify(packageJson, null, 2))
+
+  if (githubUsername) {
+    const npmrc = `@${githubUsername}:registry=https://npm.pkg.github.com`
+    writeFileSync(join(outputFolder, ".npmrc"), npmrc)
+  }
 
   const tsconfig = {
     include: ["src", "types"],
